@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="si.gabers.toduowatch"
+    android:versionCode="1"
+    android:versionName="1.0" >
+	
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="19" />
+    
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="si.gabers.toduowatch.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name="si.gabers.toduowatch.ItemList"
+            android:label="@string/app_name" >
+        </activity>
+        
+        
+        
+        	<!-- Implements the service consumer --> 
+        <service android:name="si.gabers.toduowatch.backend.SASmartViewConsumerImpl"/>
+        <receiver android:name = "com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.accessory.service.action.ACCESSORY_SERVICE_CONNECTION_IND"/>
+            </intent-filter>
+        </receiver>
+         <receiver android:name = "com.samsung.android.sdk.accessory.RegisterUponInstallReceiver">          
+           <intent-filter>
+                <action android:name="android.accessory.device.action.REGISTER_AFTER_INSTALL"/>   
+            </intent-filter>
+          </receiver>
+<!--          	<receiver android:name = "com.samsung.appcessory.agents.DeviceAttachedBroadcastReceiver"> -->
+<!-- 				<intent-filter> -->
+<!-- 					<action android:name="android.appcessory.device.action.ATTACHED"/> -->
+<!-- 					<action android:name="android.appcessory.device.action.DETACHED" /> -->
+<!-- 				</intent-filter> -->
+<!--      	 </receiver>	  -->
+
+		<receiver android:name="si.gabers.toduowatch.backend.SADeviceAttachedReceiver" >
+            <intent-filter>
+                <action android:name="android.accessory.device.action.ATTACHED" />
+            </intent-filter>
+        </receiver>
+	  	
+        <meta-data android:name="AccessoryServicesLocation" android:value="/res/xml/accessoryservices.xml"/>
+    </application>
+
+    
+    
+</manifest>

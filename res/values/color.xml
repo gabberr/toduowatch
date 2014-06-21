@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_background_color">#E4F1EA</color>
+    <color name="textview_background">#ffffff</color>
+    <color name="amount_background">#d2202e</color>
+    <color name="amount_textColor">#ffffff</color>
+</resources>
