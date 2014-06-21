@@ -32,9 +32,11 @@
 
 package si.gabers.toduowatch.backend;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import si.gabers.toduo.backend.SAToDuoProviderImpl.SAToDuoProviderConnection;
 import si.gabers.toduo.model.InterfaceAdapter;
 import si.gabers.toduo.model.ItemListInterface;
 import si.gabers.toduo.model.ItemRootElement;
@@ -447,6 +449,37 @@ private boolean processUnsupportedException(SsdkUnsupportedException e) {
             Log.e(TAG, "onServiceConectionLost  for peer with error code =" + errorCode);
             mImageListReceiverRegistered.onServiceConnectionLost(errorCode);
 
+        }
+
+    }
+    
+    /**
+     * 
+     * @param connectedPeerId
+     */
+    public void sendListMsg( String data) {
+
+//        Log.d(TAG, "sendTbListMsg : Enter");
+//        final TBListRespMsg uRMessage = new TBListRespMsg(mResult, mReason,
+//                                                          mTb.size(), mTb);
+        String uJsonStringToSend = data;
+//        try {
+//            uJsonStringToSend = uRMessage.toJSON().toString();
+//        } catch (final JSONException e) {
+//
+//            Log.e(TAG, "sendThumbnails() Cannot convert json to string");
+//            e.printStackTrace();
+//        }
+        Log.d(TAG, "tb rsp msg size = " + uJsonStringToSend.length());
+        if (mConnectionHandler != null) {
+       
+            try {
+            	
+            	mConnectionHandler.send(GALLERY_CHANNEL_ID, data.getBytes());
+            } catch (final IOException e) {
+                Log.e(TAG, "I/O Error occured while send");
+                e.printStackTrace();
+            }
         }
 
     }

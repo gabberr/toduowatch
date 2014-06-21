@@ -3,6 +3,8 @@ package si.gabers.toduowatch;
 import java.util.ArrayList;
 import java.util.List;
 
+import si.gabers.toduo.model.InterfaceAdapter;
+import si.gabers.toduo.model.ItemListInterface;
 import si.gabers.toduo.model.ItemRootElement;
 import si.gabers.toduo.model.TextItemList;
 import si.gabers.toduo.model.MainItemListModel;
@@ -11,6 +13,8 @@ import si.gabers.toduowatch.backend.SASmartViewConsumerImpl.ImageListReceiver;
 import si.gabers.toduowatch.backend.SASmartViewConsumerImpl.LocalBinder;
 import si.gabers.toduowatch.R;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.samsung.android.sdk.accessory.SAPeerAgent;
 import com.samsung.android.sdk.accessory.SASocket;
 
@@ -87,6 +91,7 @@ public class MainActivity extends FragmentActivity implements ImageListReceiver,
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		root = new ItemRootElement();
@@ -170,6 +175,15 @@ public class MainActivity extends FragmentActivity implements ImageListReceiver,
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
+			
+			Gson gson = new GsonBuilder().registerTypeAdapter(ItemListInterface.class, new InterfaceAdapter<ItemListInterface>())
+					.excludeFieldsWithoutExposeAnnotation()
+                    .create();
+			
+        	String json = gson.toJson(root).toString();
+			mBackendService.sendListMsg(json);
+			
+			
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
