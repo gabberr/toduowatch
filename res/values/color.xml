@@ -4,4 +4,11 @@
     <color name="textview_background">#ffffff</color>
     <color name="amount_background">#d2202e</color>
     <color name="amount_textColor">#ffffff</color>
+    <color name="greenLight">#f0f8db</color>
+	<color name="redLight">#ffe4e4</color>
+	
+	<integer-array name="toduocolors">
+        <item>@color/greenLight</item>
+        <item>@color/redLight</item>
+    </integer-array>
 </resources>

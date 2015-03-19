@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/itemLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" 
+    android:layout_height="wrap_content"
+    android:background="@color/app_background_color"
     android:keepScreenOn="true"
-	android:background="@color/app_background_color"
-	 android:id="@+id/parent" >
+    android:orientation="vertical" >
 
     <CheckBox
         android:id="@+id/checkBox1"
+        style="@drawable/chechboxtoduo"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Maline"
-        android:textSize="50sp"
         android:layout_centerInParent="true"
-        android:typeface="normal" />
+        android:checked="true"
+        android:text="Maline za enega"
+        android:textSize="60sp"
+        android:typeface="serif" />
 
     <TextView
         android:id="@+id/textViewCounter"

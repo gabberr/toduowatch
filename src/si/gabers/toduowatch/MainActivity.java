@@ -6,20 +6,13 @@ import java.util.List;
 import si.gabers.toduo.model.InterfaceAdapter;
 import si.gabers.toduo.model.ItemListInterface;
 import si.gabers.toduo.model.ItemRootElement;
-import si.gabers.toduo.model.TextItemList;
 import si.gabers.toduo.model.MainItemListModel;
+import si.gabers.toduo.model.TextItemList;
 import si.gabers.toduowatch.backend.SASmartViewConsumerImpl;
 import si.gabers.toduowatch.backend.SASmartViewConsumerImpl.ImageListReceiver;
 import si.gabers.toduowatch.backend.SASmartViewConsumerImpl.LocalBinder;
-import si.gabers.toduowatch.R;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.samsung.android.sdk.accessory.SAPeerAgent;
-import com.samsung.android.sdk.accessory.SASocket;
-
-import android.app.ActionBar.Tab;
 import android.app.ActionBar;
+import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
@@ -44,15 +37,21 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.os.Build;
+import at.fhooe.automate.logger.android.services.workflow.Workflow;
 
-public class MainActivity extends FragmentActivity implements ImageListReceiver, ActionBar.TabListener {
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.samsung.android.sdk.accessory.SAPeerAgent;
+import com.samsung.android.sdk.accessory.SASocket;
+
+public class MainActivity extends FragmentActivity implements
+		ImageListReceiver, ActionBar.TabListener {
 
 	MainListsPagerAdapter mMainListPagerAdapter;
-//	public static ArrayList<MainItemListModel> items;
+	// public static ArrayList<MainItemListModel> items;
 	public static ItemRootElement root;
-    ViewPager mViewPager;
-    GestureDetector gestureDetector;
+	ViewPager mViewPager;
+	GestureDetector gestureDetector;
 
 	public static final String TAG = "SmartViewConsumerActivity";
 
@@ -65,99 +64,113 @@ public class MainActivity extends FragmentActivity implements ImageListReceiver,
 	String mDownscaledImage = "";
 	boolean mIsBound = false;
 	boolean mReConnect = false;
-	//SAPeerAgent mPeerAgent;
+	// SAPeerAgent mPeerAgent;
 	public static final int MSG_INITIATE_CONNECTION = 6;
-//	private static Object mListLock = new Object();
+	// private static Object mListLock = new Object();
 
-	
-	private ServiceConnection mConnection = new ServiceConnection() {
+	private final ServiceConnection mConnection = new ServiceConnection() {
+		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			LocalBinder binder = (LocalBinder) service;
 			mBackendService = binder.getService();
 			mBackendService.registerImageReciever(MainActivity.this);
 			mIsBound = true;
 			mBackendService.findPeers();
-			Log.i(TAG, "ToDuoWatch Service attached to " + className.getClassName());
+			Log.i(TAG,
+					"ToDuoWatch Service attached to "
+							+ className.getClassName());
 		}
 
+		@Override
 		public void onServiceDisconnected(ComponentName className) {
 			// This is called when the connection with the service has been
 			// unexpectedly disconnected - process crashed.
-			Log.e(TAG,"ToDuo Service Disconnected");
+			Log.e(TAG, "ToDuo Service Disconnected");
 			mBackendService = null;
 			mIsBound = false;
 		}
 	};
-	
+
+	@Override
+	public void onPause() {
+		super.onPause();
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		root = new ItemRootElement();
-		
+
 		root.items = new ArrayList<MainItemListModel>();
-		    
-	    MainItemListModel list1 = new MainItemListModel("List 1");
-	    list1.addItem(new TextItemList("Andrej"));
-	    list1.addItem(new TextItemList("Miha"));
-	    
-	    MainItemListModel list2 = new MainItemListModel("List 2");
-	    list2.addItem(new TextItemList("Ana"));
-	    list2.addItem(new TextItemList("Tina"));
-	    
-	    root.items.add(list1);
-	    root.items.add(list2);
-	
-	    
-	    // Create the adapter that will return a fragment for each of the three primary sections
-        // of the app.
-        mMainListPagerAdapter = new MainListsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
+		MainItemListModel list1 = new MainItemListModel("List 1");
+		list1.addItem(new TextItemList("Andrej"));
+		list1.addItem(new TextItemList("Miha"));
 
-        // Specify that the Home/Up button should not be enabled, since there is no hierarchical
-        // parent.
-        actionBar.setHomeButtonEnabled(false);
+		MainItemListModel list2 = new MainItemListModel("List 2");
+		list2.addItem(new TextItemList("Ana"));
+		list2.addItem(new TextItemList("Tina"));
 
-        // Specify that we will be displaying tabs in the action bar.
-//	        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		root.items.add(list1);
+		root.items.add(list2);
 
-        // Set up the ViewPager, attaching the adapter and setting up a listener for when the
-        // user swipes between sections.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mMainListPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                // When swiping between different app sections, select the corresponding tab.
-                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-                // Tab.
-//	                actionBar.setSelectedNavigationItem(position);
-            }
-        });
-        
-        mViewPager.setCurrentItem(0);
+		// Create the adapter that will return a fragment for each of the three
+		// primary sections
+		// of the app.
+		mMainListPagerAdapter = new MainListsPagerAdapter(
+				getSupportFragmentManager());
 
-        // For each of the sections in the app, add a tab to the action bar.
-        for (int i = 0; i < mMainListPagerAdapter.getCount(); i++) {
-            // Create a tab with text corresponding to the page title defined by the adapter.
-            // Also specify this Activity object, which implements the TabListener interface, as the
-            // listener for when this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mMainListPagerAdapter.getPageTitle(i))
-                            .setTabListener(this));
-        }
-		    
-		    
+		// Set up the action bar.
+		final ActionBar actionBar = getActionBar();
+
+		// Specify that the Home/Up button should not be enabled, since there is
+		// no hierarchical
+		// parent.
+		actionBar.setHomeButtonEnabled(false);
+
+		// Specify that we will be displaying tabs in the action bar.
+		// actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+
+		// Set up the ViewPager, attaching the adapter and setting up a listener
+		// for when the
+		// user swipes between sections.
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setAdapter(mMainListPagerAdapter);
+		mViewPager
+				.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+					@Override
+					public void onPageSelected(int position) {
+						// When swiping between different app sections, select
+						// the corresponding tab.
+						// We can also use ActionBar.Tab#select() to do this if
+						// we have a reference to the
+						// Tab.
+						// actionBar.setSelectedNavigationItem(position);
+					}
+				});
+
+		mViewPager.setCurrentItem(0);
+
+		// For each of the sections in the app, add a tab to the action bar.
+		for (int i = 0; i < mMainListPagerAdapter.getCount(); i++) {
+			// Create a tab with text corresponding to the page title defined by
+			// the adapter.
+			// Also specify this Activity object, which implements the
+			// TabListener interface, as the
+			// listener for when this tab is selected.
+			actionBar.addTab(actionBar.newTab()
+					.setText(mMainListPagerAdapter.getPageTitle(i))
+					.setTabListener(this));
+		}
+
 		doBindServiceToConsumerService();
-		
-//		if (savedInstanceState == null) {
-//			getFragmentManager().beginTransaction()
-//					.add(R.id.container, new PlaceholderFragment()).commit();
-//		}
+
+		// if (savedInstanceState == null) {
+		// getFragmentManager().beginTransaction()
+		// .add(R.id.container, new PlaceholderFragment()).commit();
+		// }
 	}
 
 	@Override
@@ -175,15 +188,15 @@ public class MainActivity extends FragmentActivity implements ImageListReceiver,
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-			
-			Gson gson = new GsonBuilder().registerTypeAdapter(ItemListInterface.class, new InterfaceAdapter<ItemListInterface>())
-					.excludeFieldsWithoutExposeAnnotation()
-                    .create();
-			
-        	String json = gson.toJson(root).toString();
+
+			Gson gson = new GsonBuilder()
+					.registerTypeAdapter(ItemListInterface.class,
+							new InterfaceAdapter<ItemListInterface>())
+					.excludeFieldsWithoutExposeAnnotation().create();
+
+			String json = gson.toJson(root).toString();
 			mBackendService.sendListMsg(json);
-			
-			
+
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -205,6 +218,8 @@ public class MainActivity extends FragmentActivity implements ImageListReceiver,
 			return rootView;
 		}
 	}
+
+	@Override
 	protected void onDestroy() {
 		Log.i(TAG, "onDestroy");
 		closeConnection();
@@ -213,36 +228,36 @@ public class MainActivity extends FragmentActivity implements ImageListReceiver,
 		super.onDestroy();
 
 	}
-	
+
 	void doBindServiceToConsumerService() {
 		Log.i(TAG, "doBindServiceToConsumerService");
-		mIsBound = bindService(
-				new Intent(this, SASmartViewConsumerImpl.class), mConnection,
-				Context.BIND_AUTO_CREATE);
+		mIsBound = bindService(new Intent(this, SASmartViewConsumerImpl.class),
+				mConnection, Context.BIND_AUTO_CREATE);
 
 	}
-	
-	 /**
-     * 
-     * @author amit.s5
-     *
-     */
+
+	/**
+	 * 
+	 * @author amit.s5
+	 * 
+	 */
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
-		Log.d(TAG, "clearThumbnails new  response  has arrived  :"+mReConnect);
-		if(mReConnect == true && mBackendService != null ){
+		Log.d(TAG, "On resume started :" + mReConnect);
+		Workflow.prepareAndCommitState("MainActivity", "MainActivity");
+
+		if (mReConnect == true && mBackendService != null) {
 			mBackendService.findPeers();
 		}
 		super.onResume();
 	}
 
-	
-	 /**
-     * 
-     * @author amit.s5
-     *
-     */
+	/**
+	 * 
+	 * @author amit.s5
+	 * 
+	 */
 	void doUnbindService() {
 		if (mIsBound == true) {
 			unbindService(mConnection);
@@ -250,23 +265,22 @@ public class MainActivity extends FragmentActivity implements ImageListReceiver,
 		}
 	}
 
-	 /**
-     * 
-     * @author amit.s5
-     *
-     */
+	/**
+	 * 
+	 * @author amit.s5
+	 * 
+	 */
 	void closeConnection() {
 		if (mIsBound == true) {
 			mBackendService.closeConnection();
 
 		}
 	}
-	
 
-	   /**
-     * 
-     * @param uRemoteAgent
-     */
+	/**
+	 * 
+	 * @param uRemoteAgent
+	 */
 	@Override
 	public void onPeerFound(SAPeerAgent uRemoteAgent) {
 
@@ -284,17 +298,19 @@ public class MainActivity extends FragmentActivity implements ImageListReceiver,
 		}
 
 	}
-    /**
-     * 
-     * @param errorcode
-     */
+
+	/**
+	 * 
+	 * @param errorcode
+	 */
 	@Override
 	public void onServiceConnectionLost(int errorcode) {
-		Log.d(TAG, "onServiceConnectionLost  enter with error value "+errorcode);
-		if(errorcode == SASocket.CONNECTION_LOST_DEVICE_DETACHED)
+		Log.d(TAG, "onServiceConnectionLost  enter with error value "
+				+ errorcode);
+		if (errorcode == SASocket.CONNECTION_LOST_DEVICE_DETACHED)
 			mReConnect = true;
 	}
-	
+
 	Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -302,150 +318,139 @@ public class MainActivity extends FragmentActivity implements ImageListReceiver,
 			if (msg.what == MSG_MAINITEMIST_RECEIVED) {
 				Log.i(TAG, "Received Thumbnails now updating UX");
 				mMainListPagerAdapter.notifyDataSetChanged();
-//				clearThumbnails();
-//				handleReceivedThumbnails();
+				// clearThumbnails();
+				// handleReceivedThumbnails();
 			} else if (msg.what == MSG_IMAGE_RECEIVED) {
 				Log.i(TAG, "Received downscaled image now updating UX");
 
-//				handleRecievedImage();
+				// handleRecievedImage();
 
 			}
 		}
 	};
-	
-	
+
 	@Override
 	public void onItemListReceived(ItemRootElement _root) {
 		// TODO Auto-generated method stub
-		Log.d(TAG,"onMainItemListReceived Enter");
+		Log.d(TAG, "onMainItemListReceived Enter");
 		root = _root;
 		Message msg = Message.obtain();
 		msg.what = MSG_MAINITEMIST_RECEIVED;
 		mHandler.sendMessage(msg);
-		
+
 	}
 
-	
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		// TODO Auto-generated method stub
-		 mViewPager.setCurrentItem(tab.getPosition());
-		
+		mViewPager.setCurrentItem(tab.getPosition());
+
 	}
 
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-	
-	   public class MainListsPagerAdapter extends FragmentPagerAdapter {
-		   
-		   
-		   
-	        public MainListsPagerAdapter(FragmentManager fm) {
-	            super(fm);
-	            
-	        }
 
-	        @Override
-	        public Fragment getItem(int i) {
-	        
-	        	Bundle args = new Bundle();
-	        	
-//	            switch (i) {
-//		            case 0:
-	        	
-	        	//http://gabers.si/kompleks/about.html
-            		        	
-	        			MainListFragment fragment =  new MainListFragment();
-		            	fragment.setRetainInstance(true);	              
-		                args.putInt("i", i);
-		                fragment.setArguments(args);
-		                return fragment;
-			        	
+	public class MainListsPagerAdapter extends FragmentPagerAdapter {
 
-//	                case 1:
-//	                	fragment = new BMHConfirmSectionFragment();
-//	                    return fragment;
-//
-//	                default:
-//	                	return new BMHAlertSectionFragment();
-//	            }
-	        }
+		public MainListsPagerAdapter(FragmentManager fm) {
+			super(fm);
 
-	        @Override
-	        public int getCount() {
-	            return root.items.size();
-	        }
+		}
 
-	        @Override
-	        public CharSequence getPageTitle(int position) {
-	        	String title = "";
-	        	switch(position){
-	        		case 0:
-	        			title = "No";
-	        			break;
-	        		case 1:
-	        			title = "Spring Break Trip";
-	        			break;
-	        		case 2:
-	        			title = "Yes";
-	        			break;
-	        	}
-	            return title;
-	        }
-	        @Override
-	        public int getItemPosition (Object object)
-	        {
-	          int index = root.items.indexOf (object);
-	          if (index == -1)
-	            return POSITION_NONE;
-	          else
-	            return index;
-	        }
-	    }
-	
-	
-	
-	 public  static class MainListFragment extends Fragment {
+		@Override
+		public Fragment getItem(int i) {
 
-	        @Override
-	        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-	                Bundle savedInstanceState) {
-	            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-	            
-//	            gestureDetector = new GestureDetector(this.getActivity(), new GestureListener());
-//	            
-	            Bundle args = getArguments();
-	            final int i = (int) args.get("i");
+			Bundle args = new Bundle();
 
-	            
-	            TextView tv = (TextView)rootView.findViewById(R.id.textView1);
-	            tv.setText( root.items.get(i).toString());
-	            rootView.setOnClickListener(new OnClickListener() {
+			// switch (i) {
+			// case 0:
 
-					@Override
-					public void onClick(View v) {
-						ItemList.listId = i;
-						startActivity(new Intent(getActivity(), ItemList.class));
+			// http://gabers.si/kompleks/about.html
 
-					}
-				});
-	            
-	            
-	            
-	            return rootView;
-	        }
-	    }
-	
+			MainListFragment fragment = new MainListFragment();
+			fragment.setRetainInstance(true);
+			args.putInt("i", i);
+			fragment.setArguments(args);
+			return fragment;
 
+			// case 1:
+			// fragment = new BMHConfirmSectionFragment();
+			// return fragment;
+			//
+			// default:
+			// return new BMHAlertSectionFragment();
+			// }
+		}
+
+		@Override
+		public int getCount() {
+			return root.items.size();
+		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+			String title = "";
+			switch (position) {
+			case 0:
+				title = "No";
+				break;
+			case 1:
+				title = "Spring Break Trip";
+				break;
+			case 2:
+				title = "Yes";
+				break;
+			}
+			return title;
+		}
+
+		@Override
+		public int getItemPosition(Object object) {
+			int index = root.items.indexOf(object);
+			if (index == -1)
+				return POSITION_NONE;
+			else
+				return index;
+		}
+	}
+
+	public static class MainListFragment extends Fragment {
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_main, container,
+					false);
+
+			// gestureDetector = new GestureDetector(this.getActivity(), new
+			// GestureListener());
+			//
+			Bundle args = getArguments();
+			final int i = (int) args.get("i");
+
+			TextView tv = (TextView) rootView.findViewById(R.id.textView1);
+			tv.setText(root.items.get(i).toString());
+			rootView.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					ItemList.listId = i;
+					startActivity(new Intent(getActivity(), ItemList.class));
+
+				}
+			});
+
+			return rootView;
+		}
+	}
 
 }
