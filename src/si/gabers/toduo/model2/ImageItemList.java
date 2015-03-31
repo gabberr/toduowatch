@@ -1,4 +1,4 @@
-package si.gabers.toduo.model;
+package si.gabers.toduo.model2;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

@@ -4,10 +4,9 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.ajdt.core.ASPECTJRT_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="libs/accessory-v1.0.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/sdk-v1.0.0.jar"/>
+	<classpathentry kind="lib" path="libs/sdk-v1.0.0.jar"/>
 	<classpathentry kind="lib" path="/AndroidClient/bin/androidclient.jar">
 		<attributes>
 			<attribute name="org.eclipse.ajdt.aspectpath" value="org.eclipse.ajdt.aspectpath"/>

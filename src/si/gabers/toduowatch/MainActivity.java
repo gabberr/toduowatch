@@ -231,7 +231,8 @@ public class MainActivity extends FragmentActivity implements
 
 	void doBindServiceToConsumerService() {
 		Log.i(TAG, "doBindServiceToConsumerService");
-		mIsBound = bindService(new Intent(this, SASmartViewConsumerImpl.class),
+		Context c = this;
+		mIsBound = bindService(new Intent(c, SASmartViewConsumerImpl.class),
 				mConnection, Context.BIND_AUTO_CREATE);
 
 	}

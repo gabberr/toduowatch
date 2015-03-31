@@ -39,6 +39,9 @@
         
         	<!-- Implements the service consumer --> 
         <service android:name="si.gabers.toduowatch.backend.SASmartViewConsumerImpl"/>
+        <service android:name="at.fhooe.automate.logger.android.network.BluetoothConsumerImpl"/>
+
+        
         <receiver android:name = "com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.accessory.service.action.ACCESSORY_SERVICE_CONNECTION_IND"/>
@@ -49,6 +52,7 @@
                 <action android:name="android.accessory.device.action.REGISTER_AFTER_INSTALL"/>   
             </intent-filter>
           </receiver>
+          
 <!--          	<receiver android:name = "com.samsung.appcessory.agents.DeviceAttachedBroadcastReceiver"> -->
 <!-- 				<intent-filter> -->
 <!-- 					<action android:name="android.appcessory.device.action.ATTACHED"/> -->
@@ -66,7 +70,4 @@
         <meta-data android:name="com.google.android.gms.version"
         android:value="@integer/google_play_services_version" />
     </application>
-
-    
-    
 </manifest>
