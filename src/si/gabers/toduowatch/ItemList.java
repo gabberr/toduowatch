@@ -3,11 +3,10 @@ package si.gabers.toduowatch;
 import java.util.ArrayList;
 import java.util.List;
 
-import si.gabers.toduo.model.ImageItemList;
-import si.gabers.toduo.model.ItemListInterface;
-import si.gabers.toduo.model.ItemRootElement;
+import si.gabers.toduodata.model.ItemIF;
+import si.gabers.toduodata.model.ItemRootElement;
 import si.gabers.toduowatch.backend.SASmartViewConsumerImpl;
-import si.gabers.toduowatch.backend.SASmartViewConsumerImpl.ImageListReceiver;
+import si.gabers.toduowatch.backend.SASmartViewConsumerImpl.RootItemDataReceiver;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
@@ -19,9 +18,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -33,7 +30,7 @@ import android.widget.Toast;
 
 import com.samsung.android.sdk.accessory.SAPeerAgent;
 
-public class ItemList extends FragmentActivity implements ImageListReceiver,
+public class ItemList extends FragmentActivity implements RootItemDataReceiver,
 		ActionBar.TabListener {
 
 	private static final int SWIPE_MIN_DISTANCE = 120;
@@ -44,15 +41,15 @@ public class ItemList extends FragmentActivity implements ImageListReceiver,
 
 	public static final String TAG = "SmartViewConsumerActivity";
 
-	public static final int MSG_THUMBNAIL_RECEIVED = 1986;
-	public static final int MSG_IMAGE_RECEIVED = 1987;
+	// public static final int MSG_THUMBNAIL_RECEIVED = 1986;
+	// public static final int MSG_IMAGE_RECEIVED = 1987;
 
 	SASmartViewConsumerImpl mBackendService = null;
 	List<String> mDTBListReceived = null;
-	String mImage = null;
-	String mDownscaledImage = "";
+	// String mImage = null;
+	// String mDownscaledImage = "";
 	boolean mIsBound = false;
-	boolean mReConnect = false;
+	// boolean mReConnect = false;
 	// SAPeerAgent mPeerAgent;
 	public static final int MSG_INITIATE_CONNECTION = 6;
 	private static Object mListLock = new Object();
@@ -145,7 +142,6 @@ public class ItemList extends FragmentActivity implements ImageListReceiver,
 
 		public MainListPagerAdapter(FragmentManager fm) {
 			super(fm);
-
 		}
 
 		@Override
@@ -163,24 +159,6 @@ public class ItemList extends FragmentActivity implements ImageListReceiver,
 		@Override
 		public int getCount() {
 			return MainActivity.root.items.get(listId).getItemList().size();
-		}
-
-		@Override
-		public CharSequence getPageTitle(int position) {
-
-			String title = "";
-			switch (position) {
-			case 0:
-				title = "No";
-				break;
-			case 1:
-				title = "Spring Break Trip";
-				break;
-			case 2:
-				title = "Yes";
-				break;
-			}
-			return title;
 		}
 
 		@Override
@@ -206,24 +184,6 @@ public class ItemList extends FragmentActivity implements ImageListReceiver,
 		TextView mCheckedStatus;
 		ImageView mImageView;
 
-		public class MyGestureDetector extends
-				GestureDetector.SimpleOnGestureListener {
-
-			@Override
-			public boolean onDoubleTapEvent(MotionEvent e) {
-				Log.i(TAG, "onDoubleTapEvent");
-				return true;
-			}
-
-			@Override
-			public boolean onDoubleTap(MotionEvent e) {
-				// TODO Auto-generated method stub
-				Log.i(TAG, "onDoubleTap");
-				return super.onDoubleTap(e);
-			}
-
-		}
-
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
@@ -237,30 +197,30 @@ public class ItemList extends FragmentActivity implements ImageListReceiver,
 			mCheckedStatus = (TextView) mRootView
 					.findViewById(R.id.textViewCounter);
 
-			if (MainActivity.root.items.get(listId).getItemList().get(i)
-					.isImageItem()) {
-				mRootView = inflater.inflate(R.layout.imageitem_layout,
-						container, false);
-				mImageView = (ImageView) mRootView
-						.findViewById(R.id.imageView1);
-
-				ImageItemList imgitm = (ImageItemList) MainActivity.root.items
-						.get(listId).getItemList().get(i);
-				imgitm.decodeBitmap();
-				mImageView.setImageBitmap(imgitm.getImage());
-				mImageView.setOnClickListener(new View.OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						mCheckbox.setChecked(!mCheckbox.isChecked());
-
-					}
-				});
-
-				mCheckbox = (CheckBox) mRootView.findViewById(R.id.checkBox1);
-				mCheckedStatus = (TextView) mRootView
-						.findViewById(R.id.textViewCounter);
-			}
+			// if (MainActivity.root.items.get(listId).getItemList().get(i)
+			// .isImageItem()) {
+			// mRootView = inflater.inflate(R.layout.imageitem_layout,
+			// container, false);
+			// mImageView = (ImageView) mRootView
+			// .findViewById(R.id.imageView1);
+			//
+			// ImageItem imgitm = (ImageItem) MainActivity.root.items
+			// .get(listId).getItemList().get(i);
+			// imgitm.decodeBitmap();
+			// mImageView.setImageBitmap(imgitm.getImage());
+			// mImageView.setOnClickListener(new View.OnClickListener() {
+			//
+			// @Override
+			// public void onClick(View v) {
+			// mCheckbox.setChecked(!mCheckbox.isChecked());
+			//
+			// }
+			// });
+			//
+			// mCheckbox = (CheckBox) mRootView.findViewById(R.id.checkBox1);
+			// mCheckedStatus = (TextView) mRootView
+			// .findViewById(R.id.textViewCounter);
+			// }
 
 			mCheckbox.setTag(i);
 
@@ -301,11 +261,14 @@ public class ItemList extends FragmentActivity implements ImageListReceiver,
 			}
 		}
 
+		/**
+		 * Counter for displaying how many items are checked
+		 */
 		public void updateCheckedStatus() {
 			int count = 0;
-			ArrayList<ItemListInterface> list = MainActivity.root.items.get(
-					listId).getItemList();
-			for (ItemListInterface item : list) {
+			ArrayList<ItemIF> list = MainActivity.root.items.get(listId)
+					.getItemList();
+			for (ItemIF item : list) {
 
 				if (item.isTicked())
 					count++;
@@ -340,4 +303,7 @@ public class ItemList extends FragmentActivity implements ImageListReceiver,
 
 	}
 
+	public interface ItemDataChangedListener {
+		public void itemRootModified();
+	}
 }

@@ -3,14 +3,14 @@ package si.gabers.toduowatch;
 import java.util.ArrayList;
 import java.util.List;
 
-import si.gabers.toduo.model.InterfaceAdapter;
-import si.gabers.toduo.model.ItemListInterface;
-import si.gabers.toduo.model.ItemRootElement;
-import si.gabers.toduo.model.MainItemListModel;
-import si.gabers.toduo.model.TextItemList;
+import si.gabers.toduodata.model.InterfaceAdapter;
+import si.gabers.toduodata.model.ItemIF;
+import si.gabers.toduodata.model.ItemRootElement;
+import si.gabers.toduodata.model.MainActivityItemList;
+import si.gabers.toduodata.model.TextItem;
 import si.gabers.toduowatch.backend.SASmartViewConsumerImpl;
-import si.gabers.toduowatch.backend.SASmartViewConsumerImpl.ImageListReceiver;
 import si.gabers.toduowatch.backend.SASmartViewConsumerImpl.LocalBinder;
+import si.gabers.toduowatch.backend.SASmartViewConsumerImpl.RootItemDataReceiver;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
@@ -45,7 +45,7 @@ import com.samsung.android.sdk.accessory.SAPeerAgent;
 import com.samsung.android.sdk.accessory.SASocket;
 
 public class MainActivity extends FragmentActivity implements
-		ImageListReceiver, ActionBar.TabListener {
+		RootItemDataReceiver, ActionBar.TabListener {
 
 	MainListsPagerAdapter mMainListPagerAdapter;
 	// public static ArrayList<MainItemListModel> items;
@@ -103,15 +103,15 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 		root = new ItemRootElement();
 
-		root.items = new ArrayList<MainItemListModel>();
+		root.items = new ArrayList<MainActivityItemList>();
 
-		MainItemListModel list1 = new MainItemListModel("List 1");
-		list1.addItem(new TextItemList("Andrej"));
-		list1.addItem(new TextItemList("Miha"));
+		MainActivityItemList list1 = new MainActivityItemList("List 1");
+		list1.addItem(new TextItem("Andrej", "sda"));
+		list1.addItem(new TextItem("Miha", "sds"));
 
-		MainItemListModel list2 = new MainItemListModel("List 2");
-		list2.addItem(new TextItemList("Ana"));
-		list2.addItem(new TextItemList("Tina"));
+		MainActivityItemList list2 = new MainActivityItemList("List 2");
+		list2.addItem(new TextItem("Ana", "saa"));
+		list2.addItem(new TextItem("Tina", "sdsds"));
 
 		root.items.add(list1);
 		root.items.add(list2);
@@ -189,13 +189,9 @@ public class MainActivity extends FragmentActivity implements
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 
-			Gson gson = new GsonBuilder()
-					.registerTypeAdapter(ItemListInterface.class,
-							new InterfaceAdapter<ItemListInterface>())
-					.excludeFieldsWithoutExposeAnnotation().create();
-
-			String json = gson.toJson(root).toString();
-			mBackendService.sendListMsg(json);
+			syncToPhone();
+			// this.finish();
+			// System.exit(0);
 
 			return true;
 		}
@@ -372,46 +368,17 @@ public class MainActivity extends FragmentActivity implements
 
 			Bundle args = new Bundle();
 
-			// switch (i) {
-			// case 0:
-
-			// http://gabers.si/kompleks/about.html
-
 			MainListFragment fragment = new MainListFragment();
 			fragment.setRetainInstance(true);
 			args.putInt("i", i);
 			fragment.setArguments(args);
 			return fragment;
 
-			// case 1:
-			// fragment = new BMHConfirmSectionFragment();
-			// return fragment;
-			//
-			// default:
-			// return new BMHAlertSectionFragment();
-			// }
 		}
 
 		@Override
 		public int getCount() {
 			return root.items.size();
-		}
-
-		@Override
-		public CharSequence getPageTitle(int position) {
-			String title = "";
-			switch (position) {
-			case 0:
-				title = "No";
-				break;
-			case 1:
-				title = "Spring Break Trip";
-				break;
-			case 2:
-				title = "Yes";
-				break;
-			}
-			return title;
 		}
 
 		@Override
@@ -432,9 +399,6 @@ public class MainActivity extends FragmentActivity implements
 			View rootView = inflater.inflate(R.layout.fragment_main, container,
 					false);
 
-			// gestureDetector = new GestureDetector(this.getActivity(), new
-			// GestureListener());
-			//
 			Bundle args = getArguments();
 			final int i = (int) args.get("i");
 
@@ -452,6 +416,27 @@ public class MainActivity extends FragmentActivity implements
 
 			return rootView;
 		}
+	}
+
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		Log.i(TAG, "onStop");
+		closeConnection();
+		doUnbindService();
+		super.onStop();
+	}
+
+	public void syncToPhone() {
+
+		Gson gson = new GsonBuilder()
+				.registerTypeAdapter(ItemIF.class,
+						new InterfaceAdapter<ItemIF>())
+				.excludeFieldsWithoutExposeAnnotation().create();
+
+		String json = gson.toJson(root).toString();
+		mBackendService.sendListMsg(json);
+
 	}
 
 }

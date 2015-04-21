@@ -34,9 +34,9 @@ package si.gabers.toduowatch.backend;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import si.gabers.toduo.model.InterfaceAdapter;
-import si.gabers.toduo.model.ItemListInterface;
-import si.gabers.toduo.model.ItemRootElement;
+import si.gabers.toduodata.model.InterfaceAdapter;
+import si.gabers.toduodata.model.ItemIF;
+import si.gabers.toduodata.model.ItemRootElement;
 import android.content.Intent;
 import android.content.pm.Signature;
 import android.os.Binder;
@@ -61,7 +61,7 @@ public class SASmartViewConsumerImpl extends SAAgent {
 
 	public static final String TAG = "SmartViewConsumerService";
 
-	ImageListReceiver mImageListReceiverRegistered;
+	RootItemDataReceiver mRootItemDataReceiverRegistered;
 
 	public static final int RESULT_FAILURE = 0; // these enums have to freezed
 	public static final int RESULT_SUCCESS = 1;
@@ -186,10 +186,10 @@ public class SASmartViewConsumerImpl extends SAAgent {
 
 		Log.i(TAG, "onFindPeerAgentResponse: Enter");
 		if (result == PEER_AGENT_FOUND) {
-			if (mImageListReceiverRegistered != null) {
+			if (mRootItemDataReceiverRegistered != null) {
 				Log.i(TAG,
 						"onFindPeerAgentResponse: Received now trying to send same to  activity");
-				mImageListReceiverRegistered.onPeerFound(uRemoteAgent);
+				mRootItemDataReceiverRegistered.onPeerFound(uRemoteAgent);
 			} else {
 				Log.e(TAG, "NO acitivity registered with service  yet ");
 			}
@@ -270,13 +270,12 @@ public class SASmartViewConsumerImpl extends SAAgent {
 		// Gson gson = new Gson();
 
 		// handleMainItemListData(data);
-		Gson gson = new GsonBuilder().registerTypeAdapter(
-				ItemListInterface.class,
-				new InterfaceAdapter<ItemListInterface>()).create();
+		Gson gson = new GsonBuilder().registerTypeAdapter(ItemIF.class,
+				new InterfaceAdapter<ItemIF>()).create();
 		ItemRootElement irt = new ItemRootElement();
 		irt = gson.fromJson(data, ItemRootElement.class);
 
-		mImageListReceiverRegistered.onItemListReceived(irt);
+		mRootItemDataReceiverRegistered.onItemListReceived(irt);
 
 		// String s = (String) data;
 		// Log.i("sddssdssd",""+items.toString());
@@ -293,7 +292,7 @@ public class SASmartViewConsumerImpl extends SAAgent {
 	 * @author amit.s5
 	 * 
 	 */
-	public interface ImageListReceiver {
+	public interface RootItemDataReceiver {
 		// void onThumbnailsReceived(List<ImageStructure> uList);
 
 		// void onImageReceived(ImageStructure image);
@@ -310,9 +309,10 @@ public class SASmartViewConsumerImpl extends SAAgent {
 	 * @author amit.s5
 	 * 
 	 */
-	public boolean registerImageReciever(ImageListReceiver uImageReceiver) {
+	public boolean registerImageReciever(
+			RootItemDataReceiver uRootItemDataReceiver) {
 
-		mImageListReceiverRegistered = uImageReceiver;
+		mRootItemDataReceiverRegistered = uRootItemDataReceiver;
 		return true;
 	}
 
@@ -437,7 +437,7 @@ public class SASmartViewConsumerImpl extends SAAgent {
 			mConnectionHandler = null;
 			Log.e(TAG, "onServiceConectionLost  for peer with error code ="
 					+ errorCode);
-			mImageListReceiverRegistered.onServiceConnectionLost(errorCode);
+			mRootItemDataReceiverRegistered.onServiceConnectionLost(errorCode);
 
 		}
 
